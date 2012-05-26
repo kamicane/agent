@@ -1,0 +1,4 @@
+node_modules
+.tm_properties
+*.html
+compiled.js
