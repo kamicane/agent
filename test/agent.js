@@ -1,8 +1,8 @@
 "use strict";
 /*
-Credit @ visionmedia / superagent
-https://github.com/visionmedia/superagent/blob/master/test/test.request.js
-*/
+ Credit @ visionmedia / superagent
+ https://github.com/visionmedia/superagent/blob/master/test/test.request.js
+ */
 var agent = require('../lib/agent')
 var expect = require('expect.js')
 describe('agent.js', function(){
@@ -264,6 +264,17 @@ describe('agent.js', function(){
                 })
         })
 
+        it('should handle POST multiple json array', function(){
+            agent
+                .post('/echo')
+                .data([1, 2, 3])
+                .data([4, 5, 6])
+                .send(function(res){
+                    expect(res._header['Content-Type']).to.be('application/json; charset=utf-8')
+                    expect(res.text).to.be('[1,2,3,4,5,6]')
+                })
+        })
+
         it('should handle POST json default', function(){
             agent
                 .post('/pet')
@@ -274,13 +285,14 @@ describe('agent.js', function(){
         })
 
         it('should handle POST multiple .send() calls', function(){
-            agent
+            var current = agent
                 .post('/pet')
                 .data({ name: 'Manny' })
                 .data({ species: 'cat' })
                 .send(function(res){
                     expect(res.text).to.be('added Manny the cat')
                 })
+            expect(current._data).to.be(null);
         })
 
         it('should handle GET json', function(){
