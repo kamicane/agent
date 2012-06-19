@@ -187,10 +187,6 @@ describe('agent.js', function(){
             agent.post('/user/5/pet').type('urlencoded').data('pet=tobi').send()
         })
 
-        it('should handle .send() with no data only', function(){
-            agent.post('/user/5/pet').type('urlencoded').send('pet=tobi')
-        })
-
         it('should handle .send() with callback only', function(){
             agent
                 .get('/echo-header/accept')
@@ -344,7 +340,7 @@ describe('agent.js', function(){
         it('should handle GET querystring object', function(){
             agent
                 .get('/querystring')
-                .send({ search: 'Manny' })
+                .data({ search: 'Manny' })
                 .send(function(res){
                     expect(res.body.search).to.be('Manny')
                 })
@@ -353,7 +349,7 @@ describe('agent.js', function(){
         it('should handle GET querystring append original', function(){
             agent
                 .get('/querystring?search=Manny')
-                .send({ range: '1..5' })
+                .data({ range: '1..5' })
                 .send(function(res){
                     expect(res.body.search).to.be('Manny')
                     expect(res.body.range).to.be('1..5')
@@ -363,9 +359,9 @@ describe('agent.js', function(){
         it('should handle GET querystring multiple objects', function(){
             agent
                 .get('/querystring')
-                .send({ search: 'Manny' })
-                .send({ range: '1..5' })
-                .send({ order: 'desc' })
+                .data({ search: 'Manny' })
+                .data({ range: '1..5' })
+                .data({ order: 'desc' })
                 .send(function(res){
                     expect(res.body.search).to.be('Manny')
                     expect(res.body.range).to.be('1..5')
