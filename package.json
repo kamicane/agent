@@ -1,6 +1,6 @@
 {
   "name": "agent",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "client-side request module, derived from superagent",
   "author": "Valerio Proietti <@kamicane> (http://mad4milk.net)",
   "main": "lib/agent",
@@ -8,7 +8,7 @@
     "url": ""
   },
   "dependencies": {
-      "prime": "0.0.6"
+    "prime": "0.0.6"
   },
   "devDependencies": {},
   "optionalDependencies": {},
