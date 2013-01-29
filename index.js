@@ -219,7 +219,7 @@ var Request = prime({
             if (encode) data = encode(data)
         }
 
-        if (method === "get"){
+        if (method === "GET"){
             url += (url.indexOf("?") > -1 ? "&" : "?") + data
             data = null
         }
