@@ -5,9 +5,10 @@ Agent
 - MIT-License
 */"use strict"
 
-var prime  = require("prime"),
-    array  = require("prime/es5/array"),
-    string = require("prime/shell/string")
+var prime   = require("prime"),
+    array   = require("prime/es5/array"),
+    string  = require("prime/shell/string"),
+    Emitter = require("prime/emitter")
 
 var trim       = string.trim,
     capitalize = string.capitalize
@@ -139,7 +140,15 @@ var parseHeader = function(str){
 var Request = prime({
 
     constructor: function Request(){
-        this._xhr = getRequest()
+        var xhr  = this._xhr = getRequest(),
+            self = this
+
+        if (xhr.addEventListener) array.forEach("progress|load|error|abort|loadend".split("|"), function(method){
+            xhr.addEventListener(method, function(event){
+                self.emit(method, event);
+            }, false)
+        })
+
         this._header = {
             "X-Requested-With": "XMLHttpRequest",
             "Content-Type": "application/x-www-form-urlencoded"
@@ -245,11 +254,13 @@ var Request = prime({
 
 })
 
+Request.implement(new Emitter)
+
 var Response = prime({
 
     constructor: function Response(text, status, header){
 
-        this.text = text
+        this.text   = text
         this.status = status
 
         var type   = header['Content-Type'].split(/ *; */).shift(),
@@ -295,9 +306,9 @@ var agent = function(method, url, data, callback){
 
     if (!rMethods.test(method)){ // shift
         callback = data
-        data = url
-        url = method
-        method = "post"
+        data     = url
+        url      = method
+        method   = "post"
     }
 
     if (typeof data === "function"){
@@ -332,7 +343,7 @@ array.forEach(methods.split("|"), function(method){
     }
 })
 
-agent.Request = Request
+agent.Request  = Request
 agent.Response = Response
 
 module.exports = agent
