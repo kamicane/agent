@@ -263,7 +263,7 @@ var Response = prime({
         this.text   = text
         this.status = status
 
-        var type   = header['Content-Type'].split(/ *; */).shift(),
+        var type   = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
             decode = decoders[type]
 
         this.body = decode ? decode(this.text) : this.text
