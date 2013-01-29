@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "client-side request module, derived from superagent",
   "author": "Valerio Proietti <@kamicane> (http://mad4milk.net)",
-  "main": "lib/agent",
+  "main": "./index.js",
   "repository": {
     "url": "https://github.com/kamicane/agent.git"
   },
