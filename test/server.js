@@ -2,9 +2,8 @@
  * Module dependencies.
  */
 
-var express = require('express')
-
-var app = express.createServer()
+var express = require("express"),
+    app = express()
 
 app.use(express.bodyParser())
 
