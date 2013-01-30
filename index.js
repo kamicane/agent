@@ -215,23 +215,20 @@ var Request = prime({
         this._running = true
 
         var method   = this._method || "POST",
-            data     = this._data || "",
+            data     = this._data || null,
             url      = this._url,
             user     = this._user || null,
             password = this._password || null
 
         var self = this, xhr = this._xhr
 
-        if (typeof data !== "string"){
+        if (data && typeof data !== "string"){
             var type   = this._header['Content-Type'].split(/ *; */).shift(),
                 encode = encoders[type]
             if (encode) data = encode(data)
         }
 
-        if (method === "GET"){
-            url += (url.indexOf("?") > -1 ? "&" : "?") + data
-            data = null
-        }
+        if (method === "GET" && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
 
         xhr.open(method, url, true, user, password)
         if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
@@ -246,7 +243,7 @@ var Request = prime({
 
         for (var field in this._header) xhr.setRequestHeader(field, this._header[field])
 
-        xhr.send(data)
+        xhr.send(data || null)
 
         return this
 
