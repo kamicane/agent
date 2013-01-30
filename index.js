@@ -228,7 +228,7 @@ var Request = prime({
             if (encode) data = encode(data)
         }
 
-        if (method === "GET" && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
+        if (/GET|HEAD/.test(method) && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
 
         xhr.open(method, url, true, user, password)
         if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
