@@ -157,9 +157,12 @@ var Request = prime({
 
     header: function(name, value){
         if (typeof name === "object") for (var key in name) this.header(key, name[key])
-        else if (arguments.length === 2) this._header[capitalize(name)] = value
-        else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (!arguments.length) return this._header
+        else if (arguments.length === 1) return this._header[capitalize(name)]
+        else if (arguments.length === 2){
+            if (value == null) delete this._header[capitalize(name)]
+            else this._header[capitalize(name)] = value
+        }
         return this
     },
 
