@@ -157,9 +157,12 @@ var Request = prime({
 
     header: function(name, value){
         if (typeof name === "object") for (var key in name) this.header(key, name[key])
-        else if (arguments.length === 2) this._header[capitalize(name)] = value
-        else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (!arguments.length) return this._header
+        else if (arguments.length === 1) return this._header[capitalize(name)]
+        else if (arguments.length === 2){
+            if (value == null) delete this._header[capitalize(name)]
+            else this._header[capitalize(name)] = value
+        }
         return this
     },
 
@@ -215,23 +218,20 @@ var Request = prime({
         this._running = true
 
         var method   = this._method || "POST",
-            data     = this._data || "",
+            data     = this._data || null,
             url      = this._url,
             user     = this._user || null,
             password = this._password || null
 
         var self = this, xhr = this._xhr
 
-        if (typeof data !== "string"){
+        if (data && typeof data !== "string"){
             var type   = this._header['Content-Type'].split(/ *; */).shift(),
                 encode = encoders[type]
             if (encode) data = encode(data)
         }
 
-        if (method === "GET"){
-            url += (url.indexOf("?") > -1 ? "&" : "?") + data
-            data = null
-        }
+        if (/GET|HEAD/.test(method) && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
 
         xhr.open(method, url, true, user, password)
         if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
@@ -246,7 +246,7 @@ var Request = prime({
 
         for (var field in this._header) xhr.setRequestHeader(field, this._header[field])
 
-        xhr.send(data)
+        xhr.send(data || null)
 
         return this
 
@@ -298,7 +298,7 @@ var Response = prime({
 
 })
 
-var methods  = "get|post|put|delete|head|patch",
+var methods  = "get|post|put|delete|head|patch|options",
     rMethods = RegExp("^" + methods + "$", "i")
 
 var agent = function(method, url, data, callback){
