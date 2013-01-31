@@ -298,7 +298,7 @@ var Response = prime({
 
 })
 
-var methods  = "get|post|put|delete|head|patch",
+var methods  = "get|post|put|delete|head|patch|options",
     rMethods = RegExp("^" + methods + "$", "i")
 
 var agent = function(method, url, data, callback){
