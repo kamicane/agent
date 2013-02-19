@@ -212,8 +212,6 @@ var Request = prime({
 
     send: function(callback){
 
-        if (!callback) callback = function(){}
-
         if (this._running) this.abort()
         this._running = true
 
@@ -240,7 +238,7 @@ var Request = prime({
             if (xhr.readyState === 4){
                 delete self._running
                 xhr.onreadystatechange = function(){}
-                callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
+                if (callback) callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
             }
         }
 
