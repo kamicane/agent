@@ -318,7 +318,8 @@ var agent = function(method, url, data, callback){
 
     if (url) request.url(url)
     if (data) request.data(data)
-    if (callback) request.send(callback)
+
+    request.send(callback)
 
     return request
 }
