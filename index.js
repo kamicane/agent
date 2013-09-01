@@ -301,6 +301,7 @@ var methods  = "get|post|put|delete|head|patch|options",
 
 var agent = function(method, url, data, callback){
     var request = new Request()
+    agent.emit('request', request)
 
     if (!rMethods.test(method)){ // shift
         callback = data
@@ -335,6 +336,11 @@ agent.decoder = function(ct, decode){
     decoders[ct] = decode
     return agent
 }
+
+var emitter = new Emitter
+agent.on = emitter.on
+agent.off = emitter.off
+agent.emit = emitter.emit
 
 array.forEach(methods.split("|"), function(method){
     agent[method] = function(url, data, callback){
