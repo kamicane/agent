@@ -212,8 +212,6 @@ var Request = prime({
 
     send: function(callback){
 
-        if (!callback) callback = function(){}
-
         if (this._running) this.abort()
         this._running = true
 
@@ -240,7 +238,7 @@ var Request = prime({
             if (xhr.readyState === 4){
                 delete self._running
                 xhr.onreadystatechange = function(){}
-                callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
+                if (callback) callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
             }
         }
 
@@ -303,6 +301,7 @@ var methods  = "get|post|put|delete|head|patch|options",
 
 var agent = function(method, url, data, callback){
     var request = new Request()
+    agent.emit('request', request)
 
     if (!rMethods.test(method)){ // shift
         callback = data
@@ -320,7 +319,8 @@ var agent = function(method, url, data, callback){
 
     if (url) request.url(url)
     if (data) request.data(data)
-    if (callback) request.send(callback)
+
+    request.send(callback)
 
     return request
 }
@@ -336,6 +336,11 @@ agent.decoder = function(ct, decode){
     decoders[ct] = decode
     return agent
 }
+
+var emitter = new Emitter
+agent.on = emitter.on
+agent.off = emitter.off
+agent.emit = emitter.emit
 
 array.forEach(methods.split("|"), function(method){
     agent[method] = function(url, data, callback){
