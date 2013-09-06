@@ -1,6 +1,6 @@
 {
   "name": "agent",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "client-side request module, derived from superagent",
   "author": "Valerio Proietti <@kamicane> (http://mad4milk.net)",
   "main": "./index.js",
