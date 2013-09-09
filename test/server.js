@@ -143,5 +143,5 @@ app.get('/test/mocha.css', function(req, res){
 
 app.use(express.static(__dirname + '/../'))
 
-app.listen(8080)
-console.log('Test server listening on port 8080')
+app.listen(18080)
+console.log('Test server listening on port 18080')
