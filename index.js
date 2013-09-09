@@ -51,11 +51,13 @@ var encodeQueryString = function(object, base){
 
         if (value == null) return
 
-        if (type(value) == "array"){
+        var valType = type(value)
+
+        if (valType == "array"){
             var qs = {}
             for (var i = 0; i < value.length; i++) qs[i] = value[i]
             result = encodeQueryString(qs, key)
-        } else if (typeof value === "object"){
+        } else if (valType == "object"){
             result = encodeQueryString(value, key)
         } else {
             result = key + "=" + encodeURIComponent(value)
@@ -157,7 +159,7 @@ var Request = prime({
     },
 
     header: function(name, value){
-        if (typeof name === "object") for (var key in name) this.header(key, name[key])
+        if (type(name) === "object") for (var key in name) this.header(key, name[key])
         else if (!arguments.length) return this._header
         else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (arguments.length === 2){
@@ -226,9 +228,9 @@ var Request = prime({
 
         var self = this, xhr = this._xhr
 
-        if (data && typeof data !== "string"){
-            var type   = this._header['Content-Type'].split(/ *; */).shift(),
-                encode = encoders[type]
+        if (data && type(data) !== "string"){
+            var contentType = this._header['Content-Type'].split(/ *; */).shift(),
+                encode      = encoders[contentType]
             if (encode) data = encode(data)
         }
 
@@ -264,8 +266,8 @@ var Response = prime({
         this.text   = text
         this.status = status
 
-        var type   = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
-            decode = decoders[type]
+        var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
+            decode      = decoders[contentType]
 
         this.body = decode ? decode(this.text) : this.text
 
@@ -312,7 +314,7 @@ var agent = function(method, url, data, callback){
         method   = "post"
     }
 
-    if (typeof data === "function"){
+    if (type(data) === "function"){
         callback = data
         data = null
     }
