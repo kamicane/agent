@@ -242,7 +242,7 @@ var Request = prime({
             if (xhr.readyState === 4){
                 delete self._running
                 xhr.onreadystatechange = function(){}
-                callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
+                callback(xhr.status, new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
             }
         }
 
