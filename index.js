@@ -6,13 +6,12 @@ Agent
 */"use strict"
 
 var prime   = require("prime"),
-    array   = require("prime/array"),
-    string  = require("prime/string"),
-    Emitter = require("prime/emitter"),
-    type = require("prime/type")
+    Emitter = require("prime/emitter")
 
-var trim       = string.trim,
-    capitalize = string.capitalize
+var type       = require("prime/type"),
+    trim       = require("prime/string/trim"),
+    capitalize = require("prime/string/capitalize"),
+    forEach    = require("prime/array/forEach")
 
 // MooTools
 
@@ -146,7 +145,7 @@ var Request = prime({
         var xhr  = this._xhr = getRequest(),
             self = this
 
-        if (xhr.addEventListener) array.forEach("progress|load|error|abort|loadend".split("|"), function(method){
+        if (xhr.addEventListener) forEach("progress|load|error|abort|loadend".split("|"), function(method){
             xhr.addEventListener(method, function(event){
                 self.emit(method, event);
             }, false)
@@ -340,7 +339,7 @@ agent.decoder = function(ct, decode){
     return agent
 }
 
-array.forEach(methods.split("|"), function(method){
+forEach(methods.split("|"), function(method){
     agent[method] = function(url, data, callback){
         return agent(method, url, data, callback)
     }
