@@ -6,9 +6,10 @@ Agent
 */"use strict"
 
 var prime   = require("prime"),
-    array   = require("prime/es5/array"),
-    string  = require("prime/shell/string"),
-    Emitter = require("prime/emitter")
+    array   = require("prime/array"),
+    string  = require("prime/string"),
+    Emitter = require("prime/emitter"),
+    type = require("prime/type")
 
 var trim       = string.trim,
     capitalize = string.capitalize
@@ -50,7 +51,7 @@ var encodeQueryString = function(object, base){
 
         if (value == null) return
 
-        if (array.isArray(value)){
+        if (type(value) == "array"){
             var qs = {}
             for (var i = 0; i < value.length; i++) qs[i] = value[i]
             result = encodeQueryString(qs, key)
