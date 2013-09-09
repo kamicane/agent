@@ -240,9 +240,13 @@ var Request = prime({
 
         xhr.onreadystatechange = function(){
             if (xhr.readyState === 4){
+                var status = xhr.status
+                var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
+                var err = response.error ? new Error(method + " " + url + " " + status) : null
+         
                 delete self._running
                 xhr.onreadystatechange = function(){}
-                callback(xhr.status, new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
+                callback(err, response);
             }
         }
 
