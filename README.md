@@ -9,5 +9,5 @@ Assuming you'd already installed dependencies running
 just run
 
 `node ./tests/serverjs`
-and fire up a browser on 'http:\\localhost:18080'
+and fire up a browser on `http:\\localhost:18080`
 
