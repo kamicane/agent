@@ -148,7 +148,7 @@ describe('agent.js', function(){
         })
 
         it('should handle del()', function(){
-            agent.delete('/user/12').send(function(res){
+            agent['delete']('/user/12').send(function(res){
                 expect(res.text).to.be('deleted')
             })
         })
