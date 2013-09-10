@@ -6,12 +6,12 @@ Agent
 */"use strict"
 
 var prime   = require("prime"),
-    array   = require("prime/es5/array"),
-    string  = require("prime/shell/string"),
     Emitter = require("prime/emitter")
 
-var trim       = string.trim,
-    capitalize = string.capitalize
+var type       = require("prime/type"),
+    trim       = require("prime/string/trim"),
+    capitalize = require("prime/string/capitalize"),
+    forEach    = require("prime/array/forEach")
 
 // MooTools
 
@@ -50,11 +50,13 @@ var encodeQueryString = function(object, base){
 
         if (value == null) return
 
-        if (array.isArray(value)){
+        var valType = type(value)
+
+        if (valType == "array"){
             var qs = {}
             for (var i = 0; i < value.length; i++) qs[i] = value[i]
             result = encodeQueryString(qs, key)
-        } else if (typeof value === "object"){
+        } else if (valType == "object"){
             result = encodeQueryString(value, key)
         } else {
             result = key + "=" + encodeURIComponent(value)
@@ -143,7 +145,7 @@ var Request = prime({
         var xhr  = this._xhr = getRequest(),
             self = this
 
-        if (xhr.addEventListener) array.forEach("progress|load|error|abort|loadend".split("|"), function(method){
+        if (xhr.addEventListener) forEach("progress|load|error|abort|loadend".split("|"), function(method){
             xhr.addEventListener(method, function(event){
                 self.emit(method, event);
             }, false)
@@ -156,7 +158,7 @@ var Request = prime({
     },
 
     header: function(name, value){
-        if (typeof name === "object") for (var key in name) this.header(key, name[key])
+        if (type(name) === "object") for (var key in name) this.header(key, name[key])
         else if (!arguments.length) return this._header
         else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (arguments.length === 2){
@@ -225,9 +227,9 @@ var Request = prime({
 
         var self = this, xhr = this._xhr
 
-        if (data && typeof data !== "string"){
-            var type   = this._header['Content-Type'].split(/ *; */).shift(),
-                encode = encoders[type]
+        if (data && type(data) !== "string"){
+            var contentType = this._header['Content-Type'].split(/ *; */).shift(),
+                encode      = encoders[contentType]
             if (encode) data = encode(data)
         }
 
@@ -238,9 +240,13 @@ var Request = prime({
 
         xhr.onreadystatechange = function(){
             if (xhr.readyState === 4){
+                var status = xhr.status
+                var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
+                var err = response.error ? new Error(method + " " + url + " " + status) : null
+         
                 delete self._running
                 xhr.onreadystatechange = function(){}
-                callback(new Response(xhr.responseText, xhr.status, parseHeader(xhr.getAllResponseHeaders())))
+                callback(err, response);
             }
         }
 
@@ -263,8 +269,8 @@ var Response = prime({
         this.text   = text
         this.status = status
 
-        var type   = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
-            decode = decoders[type]
+        var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
+            decode      = decoders[contentType]
 
         this.body = decode ? decode(this.text) : this.text
 
@@ -311,7 +317,7 @@ var agent = function(method, url, data, callback){
         method   = "post"
     }
 
-    if (typeof data === "function"){
+    if (type(data) === "function"){
         callback = data
         data = null
     }
@@ -337,7 +343,7 @@ agent.decoder = function(ct, decode){
     return agent
 }
 
-array.forEach(methods.split("|"), function(method){
+forEach(methods.split("|"), function(method){
     agent[method] = function(url, data, callback){
         return agent(method, url, data, callback)
     }
