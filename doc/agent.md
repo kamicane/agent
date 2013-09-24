@@ -63,6 +63,7 @@ agent.decoder(ct, decode)
 
 ```js
 agent.decode('contentType', function(){})
+```
 
 ### method agent:get
 
