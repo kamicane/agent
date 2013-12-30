@@ -305,9 +305,9 @@ describe('agent.js', function(){
         it('should handle GET json', function(){
             agent
                 .get('/pets')
+                .header('Content-Type', 'application/json')
                 .send(function(err, res){
                     var expected = ['tobi', 'loki', 'jane']
-
                     for (var i = 0, max = res.body.length; i < max; i++){
                         expect(res.body[i]).to.be(expected[i])
                     }
