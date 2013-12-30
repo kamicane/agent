@@ -295,7 +295,6 @@ var Response = prime({
         this.notFound      = status === 404
 
         this.body = decode && !this.noContent ? decode(this.text) : this.text
-
     },
 
     header: function(name){

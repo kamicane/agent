@@ -80,6 +80,12 @@ app.post('/echo', function(req, res){
     res.send(req.body)
 })
 
+app.all('/no-content/', function(req, res){
+    res
+        .header('Content-Type', 'application/json')
+        .send('')
+})
+
 app.post('/pet', function(req, res){
     res.send('added ' + req.body.name + ' the ' + req.body.species)
 })

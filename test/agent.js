@@ -249,6 +249,16 @@ describe('agent.js', function(){
                     expect(res.text).to.be('added Manny the cat')
                 })
         })
+
+        it('should not throw when noContent 204/1223 sent', function(){
+            agent
+                ['delete']('/no-content/')
+                .header('Content-Type', 'application/json')
+                .data({ id: 1 })
+                .send(function(err, res){
+                    expect(res.text).to.be('')
+                })
+        })
         /*
         it('should handle POST json array', function(){
             agent
