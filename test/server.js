@@ -83,6 +83,7 @@ app.post('/echo', function(req, res){
 app.del('/no-content/', function(req, res){
     res
         .header('Content-Type', 'application/json')
+        .status(204)
         .send('')
 })
 
