@@ -272,8 +272,6 @@ var Response = prime({
         var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
             decode      = decoders[contentType]
 
-        this.body = decode ? decode(this.text) : this.text
-
         this._header = header
 
         // statuses from superagent
@@ -295,6 +293,8 @@ var Response = prime({
         this.unauthorized  = status === 401
         this.notAcceptable = status === 406
         this.notFound      = status === 404
+
+        this.body = decode && !this.noContent ? decode(this.text) : this.text
 
     },
 
