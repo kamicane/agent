@@ -8,10 +8,10 @@ Agent
 var prime   = require("prime"),
     Emitter = require("prime/emitter")
 
-var type       = require("prime/type"),
-    trim       = require("prime/string/trim"),
-    capitalize = require("prime/string/capitalize"),
-    forEach    = require("prime/array/forEach")
+var kindOf     = require("mout/lang/kindOf"),
+    trim       = require("mout/string/trim"),
+    upperCase  = require("mout/string/upperCase"),
+    forEach    = require("mout/array/forEach")
 
 // MooTools
 
@@ -50,13 +50,13 @@ var encodeQueryString = function(object, base){
 
         if (value == null) return
 
-        var valType = type(value)
+        var valType = kindOf(value)
 
-        if (valType == "array"){
+        if (valType == "Array"){
             var qs = {}
             for (var i = 0; i < value.length; i++) qs[i] = value[i]
             result = encodeQueryString(qs, key)
-        } else if (valType == "object"){
+        } else if (valType == "Object"){
             result = encodeQueryString(value, key)
         } else {
             result = key + "=" + encodeURIComponent(value)
@@ -130,7 +130,7 @@ var parseHeader = function(str){
     for (var i = 0, l = lines.length; i < l; ++i){
         var line  = lines[i],
             index = line.indexOf(':'),
-            field = capitalize(line.slice(0, index)),
+            field = line.slice(0, index).replace(/\b[a-z]/g, upperCase),
             value = trim(line.slice(index + 1))
 
         fields[field] = value
@@ -158,12 +158,12 @@ var Request = prime({
     },
 
     header: function(name, value){
-        if (type(name) === "object") for (var key in name) this.header(key, name[key])
+        if (kindOf(name) === "Object") for (var key in name) this.header(key, name[key])
         else if (!arguments.length) return this._header
-        else if (arguments.length === 1) return this._header[capitalize(name)]
+        else if (arguments.length === 1) return this._header[name.replace(/\b[a-z]/g, upperCase)]
         else if (arguments.length === 2){
-            if (value == null) delete this._header[capitalize(name)]
-            else this._header[capitalize(name)] = value
+            if (value == null) delete this._header[name.replace(/\b[a-z]/g, upperCase)]
+            else this._header[name.replace(/\b[a-z]/g, upperCase)] = value
         }
         return this
     },
@@ -227,7 +227,7 @@ var Request = prime({
 
         var self = this, xhr = this._xhr
 
-        if (data && type(data) !== "string"){
+        if (data && kindOf(data) !== "String"){
             var contentType = this._header['Content-Type'].split(/ *; */).shift(),
                 encode      = encoders[contentType]
             if (encode) data = encode(data)
@@ -243,7 +243,7 @@ var Request = prime({
                 var status = xhr.status
                 var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
                 var err = response.error ? new Error(method + " " + url + " " + status) : null
-         
+
                 delete self._running
                 xhr.onreadystatechange = function(){}
                 callback(err, response);
@@ -299,7 +299,7 @@ var Response = prime({
     },
 
     header: function(name){
-        return (name) ? this._header[capitalize(name)] : null
+        return (name) ? this._header[name.replace(/\b[a-z]/g, upperCase)] : null
     }
 
 })
@@ -317,7 +317,7 @@ var agent = function(method, url, data, callback){
         method   = "post"
     }
 
-    if (type(data) === "function"){
+    if (kindOf(data) === "Function"){
         callback = data
         data = null
     }

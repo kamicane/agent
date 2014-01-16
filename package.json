@@ -15,7 +15,8 @@
     "url": "https://github.com/kamicane/agent.git"
   },
   "dependencies": {
-    "prime": "0.3"
+    "prime": "0.3",
+    "mout": "~0.7.1"
   },
   "devDependencies": {
     "mocha": "1.0",
