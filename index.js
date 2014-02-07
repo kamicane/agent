@@ -13,6 +13,10 @@ var kindOf     = require("mout/lang/kindOf"),
     upperCase  = require("mout/string/upperCase"),
     forEach    = require("mout/array/forEach")
 
+var capitalize = function(str) {
+    return str.replace(/\b[a-z]/g, upperCase)
+}
+
 // MooTools
 
 var getRequest = (function(){
@@ -130,7 +134,7 @@ var parseHeader = function(str){
     for (var i = 0, l = lines.length; i < l; ++i){
         var line  = lines[i],
             index = line.indexOf(':'),
-            field = line.slice(0, index).replace(/\b[a-z]/g, upperCase),
+            field = capitalize(line.slice(0, index)),
             value = trim(line.slice(index + 1))
 
         fields[field] = value
@@ -160,10 +164,10 @@ var Request = prime({
     header: function(name, value){
         if (kindOf(name) === "Object") for (var key in name) this.header(key, name[key])
         else if (!arguments.length) return this._header
-        else if (arguments.length === 1) return this._header[name.replace(/\b[a-z]/g, upperCase)]
+        else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (arguments.length === 2){
-            if (value == null) delete this._header[name.replace(/\b[a-z]/g, upperCase)]
-            else this._header[name.replace(/\b[a-z]/g, upperCase)] = value
+            if (value == null) delete this._header[capitalize(name)]
+            else this._header[capitalize(name)] = value
         }
         return this
     },
@@ -299,7 +303,7 @@ var Response = prime({
     },
 
     header: function(name){
-        return (name) ? this._header[name.replace(/\b[a-z]/g, upperCase)] : null
+        return (name) ? this._header[capitalize(name)] : null
     }
 
 })
