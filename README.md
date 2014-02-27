@@ -87,6 +87,9 @@ request.send(function(error, response) {
 Or an encoder for data you send:
 
 ```js
+// This is already in Agent, this is an example
+agent.encoder('application/json', JSON.stringify);
+
 request.header('content-type', 'application/json')
 // the request will be sent with JSON rather than url encoded.
 request.data({a: 1, b: 2}).send(function(...) {
