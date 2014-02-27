@@ -156,7 +156,6 @@ var Request = prime({
         })
 
         this._header = {
-            "X-Requested-With": "XMLHttpRequest",
             "Content-Type": "application/x-www-form-urlencoded"
         }
     },
