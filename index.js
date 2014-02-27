@@ -13,7 +13,7 @@ var kindOf     = require("mout/lang/kindOf"),
     upperCase  = require("mout/string/upperCase"),
     forEach    = require("mout/array/forEach")
 
-var capitalize = function(str) {
+var capitalize = function(str){
     return str.replace(/\b[a-z]/g, upperCase)
 }
 
@@ -273,10 +273,7 @@ var Response = prime({
         this.text   = text
         this.status = status
 
-        var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
-            decode
-
-        this._header = header
+        this.header = header
 
         // statuses from superagent
         // https://github.com/visionmedia/superagent
@@ -298,15 +295,13 @@ var Response = prime({
         this.notAcceptable = status === 406
         this.notFound      = status === 404
 
-        if (!this.noContent)
-            decode = decoders[contentType]
+        var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
+            decode
+
+        if (!this.noContent) decode = decoders[contentType]
 
         this.body = decode ? decode(this.text) : this.text
 
-    },
-
-    header: function(name){
-        return (name) ? this._header[capitalize(name)] : null
     }
 
 })
@@ -316,6 +311,8 @@ var methods  = "get|post|put|delete|head|patch|options",
 
 var agent = function(method, url, data, callback){
     var request = new Request()
+
+    if (!arguments.length) return request
 
     if (!rMethods.test(method)){ // shift
         callback = data
