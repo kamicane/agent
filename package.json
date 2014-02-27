@@ -1,7 +1,7 @@
 {
   "name": "agent",
   "version": "0.0.4",
-  "description": "client-side request module, derived from superagent",
+  "description": "client-side request module",
   "author": "Valerio Proietti <@kamicane> (http://mad4milk.net)",
   "contributors": [
     "Arian Stolwijk <@arian> (https://github.com/arian)",
@@ -15,17 +15,16 @@
     "url": "https://github.com/kamicane/agent.git"
   },
   "dependencies": {
-    "prime": "0.4",
+    "prime": "~0.4.0",
     "mout": "~0.9.0"
   },
   "devDependencies": {
-    "mocha": "1.0",
-    "expect.js": "0.1",
+    "mocha": "1",
+    "expect.js": "0",
     "wrapup": "0.9",
-    "express": "3.1.0"
+    "express": "3"
   },
-  "optionalDependencies": {},
-  "engines": {
-    "node": "*"
+  "scripts": {
+    "test": "./test/server"
   }
 }
