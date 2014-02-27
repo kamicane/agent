@@ -1,11 +1,10 @@
-/**
- * Module dependencies.
- */
+#!/usr/bin/env node
 
 var express = require("express"),
     app = express()
 
-app.use(express.bodyParser())
+app.use(express.urlencoded())
+app.use(express.json())
 
 app.get('/', function(req, res){
     res.redirect('/test/')
@@ -152,5 +151,5 @@ app.get('/test/mocha.css', function(req, res){
 
 app.use(express.static(__dirname + '/../'))
 
-app.listen(18080)
-console.log('Test server listening on http://localhost:18080')
+app.listen(9090)
+console.log('Test server listening on http://localhost:9090')

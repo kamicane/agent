@@ -110,8 +110,8 @@ describe('agent.js', function(){
 
         it('should handle header parsing', function(){
             agent('GET', '/notfound').send(function(err, res){
-                expect(res._header['Content-Type']).to.be('text/plain');
-                expect(res._header['X-Powered-By']).to.be('Express');
+                expect(res.header['Content-Type']).to.be('text/plain');
+                expect(res.header['X-Powered-By']).to.be('Express');
             })
         })
 
@@ -265,7 +265,7 @@ describe('agent.js', function(){
                 .post('/echo')
                 .data([1, 2, 3])
                 .send(function(err, res){
-                    expect(res._header['Content-Type']).to.be('application/json; charset=utf-8')
+                    expect(res.header['Content-Type']).to.be('application/json; charset=utf-8')
                     expect(res.text).to.be('[1,2,3]')
                 })
         })
@@ -276,7 +276,7 @@ describe('agent.js', function(){
                 .data([1, 2, 3])
                 .data([4, 5, 6])
                 .send(function(err, res){
-                    expect(res._header['Content-Type']).to.be('application/json; charset=utf-8')
+                    expect(res.header['Content-Type']).to.be('application/json; charset=utf-8')
                     expect(res.text).to.be('[1,2,3,4,5,6]')
                 })
         })
