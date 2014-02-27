@@ -2,9 +2,9 @@
 
 Agent is a client-side request module inspired by SuperAgent.
 
-# API
+## API
 
-## The request object
+### The request object
 
 ```js
 var agent = require('agent')
@@ -65,13 +65,36 @@ request.user(userName)
 request.password("password") // don't use "password" as your password
 ```
 
-# Encoders, decoders
+### Encoders, decoders
 
 Agent encodes data you send and decodes data it receives based on content-type.
 
 By default, it encodes and decodes `application/x-www-form-urlencoded` and `application/json` (however an `application/x-www-form-urlencoded` response is not common).
 
-## The response object
+You can add a new response body decoder by doing:
+
+```js
+agent.decoder('application/javascript', function(text) {
+  return new Function(text); // hemmm
+});
+
+request.send(function(error, response) {
+  // response.body is a function if the content-type
+  // of the response is `application/javascript`
+})
+```
+
+Or an encoder for data you send:
+
+```js
+request.header('content-type', 'application/json')
+// the request will be sent with JSON rather than url encoded.
+request.data({a: 1, b: 2}).send(function(...) {
+
+})
+```
+
+### The response object
 
 The response obejct you get back when requesting contains a few useful properties:
 
@@ -96,7 +119,7 @@ response.notAcceptable
 response.notFound
 ```
 
-# Test
+## Test
 
 Simply run
 ```
