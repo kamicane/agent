@@ -80,12 +80,21 @@ app.post('/echo', function(req, res){
     res.send(req.body)
 })
 
+app.del('/no-content/', function(req, res){
+    res
+        .header('Content-Type', 'application/json')
+        .status(204)
+        .send('')
+})
+
 app.post('/pet', function(req, res){
     res.send('added ' + req.body.name + ' the ' + req.body.species)
 })
 
 app.get('/pets', function(req, res){
-    res.send(['tobi', 'loki', 'jane'])
+    res
+        .header('Content-Type', 'application/json')
+        .send(['tobi', 'loki', 'jane'])
 })
 
 app.get('/foo', function(req, res){
@@ -144,4 +153,4 @@ app.get('/test/mocha.css', function(req, res){
 app.use(express.static(__dirname + '/../'))
 
 app.listen(18080)
-console.log('Test server listening on port 18080')
+console.log('Test server listening on http://localhost:18080')

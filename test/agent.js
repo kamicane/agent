@@ -249,6 +249,16 @@ describe('agent.js', function(){
                     expect(res.text).to.be('added Manny the cat')
                 })
         })
+
+        it('should not throw when noContent 204/1223 sent', function(){
+            agent
+                ['delete']('/no-content/')
+                .header('Content-Type', 'application/json')
+                .data({ id: 1 })
+                .send(function(err, res){
+                    expect(res.text).to.be('')
+                })
+        })
         /*
         it('should handle POST json array', function(){
             agent
@@ -295,9 +305,9 @@ describe('agent.js', function(){
         it('should handle GET json', function(){
             agent
                 .get('/pets')
+                .header('Content-Type', 'application/json')
                 .send(function(err, res){
                     var expected = ['tobi', 'loki', 'jane']
-
                     for (var i = 0, max = res.body.length; i < max; i++){
                         expect(res.body[i]).to.be(expected[i])
                     }

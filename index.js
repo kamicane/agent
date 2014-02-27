@@ -274,9 +274,7 @@ var Response = prime({
         this.status = status
 
         var contentType = header['Content-Type'] ? header['Content-Type'].split(/ *; */).shift() : '',
-            decode      = decoders[contentType]
-
-        this.body = decode ? decode(this.text) : this.text
+            decode
 
         this._header = header
 
@@ -299,6 +297,11 @@ var Response = prime({
         this.unauthorized  = status === 401
         this.notAcceptable = status === 406
         this.notFound      = status === 404
+
+        if (!this.noContent)
+            decode = decoders[contentType]
+
+        this.body = decode ? decode(this.text) : this.text
 
     },
 
