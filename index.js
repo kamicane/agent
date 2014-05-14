@@ -20,6 +20,7 @@ var capitalize = function(str){
 // MooTools
 
 var getRequest = (function(){
+
     var XMLHTTP = function(){
         return new XMLHttpRequest()
     }, MSXML2 = function(){
@@ -27,10 +28,22 @@ var getRequest = (function(){
     }, MSXML = function(){
         return new ActiveXObject("Microsoft.XMLHTTP")
     }
-    try {XMLHTTP(); return XMLHTTP} catch(e){}
-    try {MSXML2(); return MSXML2} catch(e){}
-    try {MSXML(); return MSXML} catch(e){}
+
+    try {
+    	XMLHTTP()
+    	return XMLHTTP
+    } catch(e){}
+    try {
+    	MSXML2()
+    	return MSXML2
+    } catch(e){}
+    try {
+    	MSXML()
+    	return MSXML
+    } catch(e){}
+
     return null
+
 })()
 
 var encodeJSON = function(object){
@@ -129,7 +142,7 @@ var decoders = {
 var parseHeader = function(str){
     var lines = str.split(/\r?\n/), fields = {}
 
-    lines.pop(); // trailing CRLF
+    lines.pop() // trailing CRLF
 
     for (var i = 0, l = lines.length; i < l; ++i){
         var line  = lines[i],
@@ -143,18 +156,12 @@ var parseHeader = function(str){
     return fields
 }
 
+var REQUESTS = 0, Q = [] // Queue stuff
+
 var Request = prime({
 
     constructor: function Request(){
-        var xhr  = this._xhr = getRequest(),
-            self = this
-
-        if (xhr.addEventListener) forEach("progress|load|error|abort|loadend".split("|"), function(method){
-            xhr.addEventListener(method, function(event){
-                self.emit(method, event);
-            }, false)
-        })
-
+        var self = this
         this._header = {
             "Content-Type": "application/x-www-form-urlencoded"
         }
@@ -176,12 +183,16 @@ var Request = prime({
     },
 
     abort: function(){
-        if (this._running){
-            this._xhr.abort()
-            delete this._running
-            this._xhr.onreadystatechange = function(){}
-            this._xhr = getRequest()
+
+    	if (this._queued){
+    		remove(Q, this._queued)
+    	}
+
+        if (this._xhr){
+        	this._xhr.abort()
+        	this._end()
         }
+
         return this
     },
 
@@ -215,12 +226,58 @@ var Request = prime({
         return this
     },
 
+    _send: function(method, url, data, header, user, password, callback){
+    	var self = this
+
+    	if (REQUESTS === agent.MAX_REQUESTS) return Q.unshift(this._queued = function(){
+			delete self._queued
+			self._send(method, url, data, header, user, password, callback)
+		})
+
+    	REQUESTS++
+
+    	var xhr = this._xhr = agent.getRequest()
+
+    	if (xhr.addEventListener) forEach(['progress', 'load', 'error' , 'abort', 'loadend'], function(method){
+    	    xhr.addEventListener(method, function(event){
+    	        self.emit(method, event)
+    	    }, false)
+    	})
+
+    	xhr.open(method, url, true, user, password)
+    	if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
+
+    	xhr.onreadystatechange = function(){
+    	    if (xhr.readyState === 4){
+    	        var status = xhr.status
+    	        var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
+    	        var error = response.error ? new Error(method + " " + url + " " + status) : null
+    	        self._end()
+    	        callback(error, response)
+    	    }
+    	}
+
+    	for (var field in header) xhr.setRequestHeader(field, header[field])
+    	xhr.send(data || null)
+    },
+
+    _end: function(){
+    	this._xhr.onreadystatechange = function(){}
+
+    	delete this._xhr
+    	delete this._running
+
+    	REQUESTS--
+
+    	var queued = Q.pop()
+    	if (queued) queued()
+    },
+
     send: function(callback){
+    	if (this._running) this.abort()
+    	this._running = true
 
-        if (!callback) callback = function(){}
-
-        if (this._running) this.abort()
-        this._running = true
+    	if (!callback) callback = function(){}
 
         var method   = this._method || "POST",
             data     = this._data || null,
@@ -228,7 +285,7 @@ var Request = prime({
             user     = this._user || null,
             password = this._password || null
 
-        var self = this, xhr = this._xhr
+        var self = this
 
         if (data && kindOf(data) !== "String"){
             var contentType = this._header['Content-Type'].split(/ *; */).shift(),
@@ -238,24 +295,7 @@ var Request = prime({
 
         if (/GET|HEAD/.test(method) && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
 
-        xhr.open(method, url, true, user, password)
-        if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
-
-        xhr.onreadystatechange = function(){
-            if (xhr.readyState === 4){
-                var status = xhr.status
-                var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
-                var err = response.error ? new Error(method + " " + url + " " + status) : null
-
-                delete self._running
-                xhr.onreadystatechange = function(){}
-                callback(err, response);
-            }
-        }
-
-        for (var field in this._header) xhr.setRequestHeader(field, this._header[field])
-
-        xhr.send(data || null)
+		this._send(method, url, data, header, user, password, callback)
 
         return this
 
@@ -352,6 +392,8 @@ forEach(methods.split("|"), function(method){
     }
 })
 
+agent.MAX_REQUESTS = Infinity
+agent.getRequest = getRequest
 agent.Request  = Request
 agent.Response = Response
 
