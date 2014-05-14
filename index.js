@@ -189,6 +189,7 @@ var Request = prime({
 
         if (this._queued){
             remove(Q, this._queued)
+            delete this._queued
         }
 
         if (this._xhr){
