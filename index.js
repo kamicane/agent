@@ -3,14 +3,21 @@ Agent
 - heavily inspired by superagent by visionmedia https://github.com/visionmedia/superagent, released under the MIT license
 - code derived from MooTools 1.4 Request.js && superagent
 - MIT-License
-*/"use strict"
+*/"use strict";
+/* global ActiveXObject */
 
 var prime   = require("prime"),
     Emitter = require("prime/emitter")
 
-var kindOf     = require("mout/lang/kindOf"),
+var isObject   = require("mout/lang/isObject"),
+    isString   = require("mout/lang/isString"),
+    isArray    = require("mout/lang/isArray"),
+    isFunction = require("mout/lang/isFunction"),
     trim       = require("mout/string/trim"),
     upperCase  = require("mout/string/upperCase"),
+    forIn      = require("mout/object/forIn"),
+    mixIn      = require("mout/object/mixIn"),
+    remove     = require("mout/array/remove"),
     forEach    = require("mout/array/forEach")
 
 var capitalize = function(str){
@@ -30,16 +37,16 @@ var getRequest = (function(){
     }
 
     try {
-    	XMLHTTP()
-    	return XMLHTTP
+      XMLHTTP()
+      return XMLHTTP
     } catch(e){}
     try {
-    	MSXML2()
-    	return MSXML2
+        MSXML2()
+        return MSXML2
     } catch(e){}
     try {
-    	MSXML()
-    	return MSXML
+        MSXML()
+        return MSXML
     } catch(e){}
 
     return null
@@ -61,27 +68,24 @@ var encodeQueryString = function(object, base){
 
     var queryString = []
 
-    for (var key in object) (function(key, value){
+    forIn(object, function(value, key){
         if (base) key = base + "[" + key + "]"
         var result
 
         if (value == null) return
 
-        var valType = kindOf(value)
-
-        if (valType == "Array"){
+        if (isArray(value)){
             var qs = {}
             for (var i = 0; i < value.length; i++) qs[i] = value[i]
             result = encodeQueryString(qs, key)
-        } else if (valType == "Object"){
+        } else if (isObject(value)){
             result = encodeQueryString(value, key)
         } else {
             result = key + "=" + encodeURIComponent(value)
         }
 
         queryString.push(result)
-
-    })(key, object[key])
+    })
 
     return queryString.join("&")
 
@@ -161,14 +165,13 @@ var REQUESTS = 0, Q = [] // Queue stuff
 var Request = prime({
 
     constructor: function Request(){
-        var self = this
         this._header = {
             "Content-Type": "application/x-www-form-urlencoded"
         }
     },
 
     header: function(name, value){
-        if (kindOf(name) === "Object") for (var key in name) this.header(key, name[key])
+        if (isObject(name)) for (var key in name) this.header(key, name[key])
         else if (!arguments.length) return this._header
         else if (arguments.length === 1) return this._header[capitalize(name)]
         else if (arguments.length === 2){
@@ -184,13 +187,13 @@ var Request = prime({
 
     abort: function(){
 
-    	if (this._queued){
-    		remove(Q, this._queued)
-    	}
+        if (this._queued){
+            remove(Q, this._queued)
+        }
 
         if (this._xhr){
-        	this._xhr.abort()
-        	this._end()
+            this._xhr.abort()
+            this._end()
         }
 
         return this
@@ -227,57 +230,57 @@ var Request = prime({
     },
 
     _send: function(method, url, data, header, user, password, callback){
-    	var self = this
+        var self = this
 
-    	if (REQUESTS === agent.MAX_REQUESTS) return Q.unshift(this._queued = function(){
-			delete self._queued
-			self._send(method, url, data, header, user, password, callback)
-		})
+        if (REQUESTS === agent.MAX_REQUESTS) return Q.unshift(this._queued = function(){
+            delete self._queued
+            self._send(method, url, data, header, user, password, callback)
+        })
 
-    	REQUESTS++
+        REQUESTS++
 
-    	var xhr = this._xhr = agent.getRequest()
+        var xhr = this._xhr = agent.getRequest()
 
-    	if (xhr.addEventListener) forEach(['progress', 'load', 'error' , 'abort', 'loadend'], function(method){
-    	    xhr.addEventListener(method, function(event){
-    	        self.emit(method, event)
-    	    }, false)
-    	})
+        if (xhr.addEventListener) forEach(['progress', 'load', 'error' , 'abort', 'loadend'], function(method){
+            xhr.addEventListener(method, function(event){
+                self.emit(method, event)
+            }, false)
+        })
 
-    	xhr.open(method, url, true, user, password)
-    	if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
+        xhr.open(method, url, true, user, password)
+        if (user != null && "withCredentials" in xhr) xhr.withCredentials = true
 
-    	xhr.onreadystatechange = function(){
-    	    if (xhr.readyState === 4){
-    	        var status = xhr.status
-    	        var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
-    	        var error = response.error ? new Error(method + " " + url + " " + status) : null
-    	        self._end()
-    	        callback(error, response)
-    	    }
-    	}
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState === 4){
+                var status = xhr.status
+                var response = new Response(xhr.responseText, status, parseHeader(xhr.getAllResponseHeaders()))
+                var error = response.error ? new Error(method + " " + url + " " + status) : null
+                self._end()
+                callback(error, response)
+            }
+        }
 
-    	for (var field in header) xhr.setRequestHeader(field, header[field])
-    	xhr.send(data || null)
+        for (var field in header) xhr.setRequestHeader(field, header[field])
+        xhr.send(data || null)
     },
 
     _end: function(){
-    	this._xhr.onreadystatechange = function(){}
+        this._xhr.onreadystatechange = function(){}
 
-    	delete this._xhr
-    	delete this._running
+        delete this._xhr
+        delete this._running
 
-    	REQUESTS--
+        REQUESTS--
 
-    	var queued = Q.pop()
-    	if (queued) queued()
+        var queued = Q.pop()
+        if (queued) queued()
     },
 
     send: function(callback){
-    	if (this._running) this.abort()
-    	this._running = true
+        if (this._running) this.abort()
+        this._running = true
 
-    	if (!callback) callback = function(){}
+        if (!callback) callback = function(){}
 
         var method   = this._method || "POST",
             data     = this._data || null,
@@ -285,9 +288,7 @@ var Request = prime({
             user     = this._user || null,
             password = this._password || null
 
-        var self = this
-
-        if (data && kindOf(data) !== "String"){
+        if (data && !isString(data)){
             var contentType = this._header['Content-Type'].split(/ *; */).shift(),
                 encode      = encoders[contentType]
             if (encode) data = encode(data)
@@ -295,7 +296,9 @@ var Request = prime({
 
         if (/GET|HEAD/.test(method) && data) url += (url.indexOf("?") > -1 ? "&" : "?") + data
 
-		this._send(method, url, data, header, user, password, callback)
+        var header = mixIn({}, this._header);
+
+        this._send(method, url, data, header, user, password, callback)
 
         return this
 
@@ -346,7 +349,7 @@ var Response = prime({
 })
 
 var methods  = "get|post|put|delete|head|patch|options",
-    rMethods = RegExp("^" + methods + "$", "i")
+    rMethods = new RegExp("^" + methods + "$", "i")
 
 var agent = function(method, url, data, callback){
     var request = new Request()
@@ -360,7 +363,7 @@ var agent = function(method, url, data, callback){
         method   = "post"
     }
 
-    if (kindOf(data) === "Function"){
+    if (isFunction(data)){
         callback = data
         data = null
     }

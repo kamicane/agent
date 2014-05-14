@@ -26,6 +26,10 @@ app.get('/not-acceptable', function(req, res){
     res.send(406)
 })
 
+app.get('/text-plain', function(req, res){
+    res.header('Content-Type', 'text/plain').send('TEXT PLAIN')
+})
+
 app.get('/no-content', function(req, res){
     res.send(204)
 })
