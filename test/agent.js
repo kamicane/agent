@@ -118,6 +118,14 @@ describe('agent.js', function(){
             })
         })
 
+        it('should handle Content-Length = 0', function(done){
+            agent('GET', '/ok-but-no-content').send(function(err, res){
+                expect(res.ok).to.be.ok()
+                expect(res.noContent).to.be.ok()
+                done()
+            })
+        })
+
         it('should handle header parsing', function(done){
             agent('GET', '/text-plain').send(function(err, res){
                 expect(res.header['Content-Type']).to.be('text/plain');
