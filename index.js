@@ -329,10 +329,11 @@ var Response = prime({
         this.clientError = t === 4
         this.serverError = t === 5
         this.error       = t === 4 || t === 5
+        var length = '' + header['Content-Length']
 
         // sugar
         this.accepted      = status === 202
-        this.noContent     = status === 204 || status === 1223
+        this.noContent     = length === '0' || status === 204 || status === 1223
         this.badRequest    = status === 400
         this.unauthorized  = status === 401
         this.notAcceptable = status === 406
